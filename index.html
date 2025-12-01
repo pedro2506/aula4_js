@@ -1,64 +1,51 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CEP</title>
-    <script src="http://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gradient-to-br from-indigo-500 to-fuchsia-500 
-min-h-screen flex items-center justify-center p-4">
-<div class="bg-white rounded-2xl shadow-2xl p8 w-full max-w-md">
-    <div class="text-center mb-6">
-        <h1 class="text-4xl font-bold text-indigo-500 mb-4"> Busca de CEP</h1>
-        <p class="text-gray-500"> Digite o CEP para buscar</p>
-    </div>
-    <div class="mb-6">
-        <label for="cep" class="block text-sm font-medium text-gray-700 mb-2"> digite o CEP</label>
-        <div class="flex gap-2">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>CEP</title>
+        <!-- Usar CDN para protótipo; em produção gere CSS com Tailwind CLI/PostCSS -->
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-gradient-to-br from-indigo-500 to-fuchsia-500 min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+            <div class="text-center mb-6">
+                <h1 class="text-4xl font-bold text-indigo-500 mb-4">Busca de CEP</h1>
+                <p class="text-gray-500">Digite o CEP para buscar</p>
+            </div>
 
-            <input type="text" id="cep" placeholder="00000-000" class="flex-1 px-4 py-3 border
-             border-gray-300 rounded-lg  focus:ring-2 focus:ring-indigo-500 
-             focus:border-transparent outline-none transition"/>
+            <div class="mb-6">
+                <label for="cep" class="block text-sm font-medium text-gray-700 mb-2">Digite o CEP</label>
+                <div class="flex gap-2">
+                    <input type="text" id="cep" placeholder="00000-000" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition" />
+                    <button id="buscarBtn" class="px-6 py-2 bg-indigo-700 text-white font-medium rounded-lg hover:bg-indigo-800 transition">Buscar</button>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Formato: 12345-678 ou 12345678</p>
+            </div>
 
-             <button id="buscarBtn" class="px-6 py-2 bg-indigo-700 text-white font-medium rounded-lg
-             hover:bg-indigo-800 transition"> Buscar </button>
-        </div>
-        <p class="text-xs text-dark "> Formato: 12345-678 ou 12345678</p>
-    </div>
+            <div id="loading" class="hidden text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-indigo-600 border-t-transparent"></div>
+                <p class="mt-2 text-gray-600">Buscando...</p>
+            </div>
 
-    <div id="loading" class="hidden text-center  py-8 ">
-        <div class="inline-block animate-spin rounded-full h-12 border-4
-         border-indigo-600 border-t-transparent"></div>
-        <p> Buscando...</p>
-        </div>
+            <div id="erro" class="hidden bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                <p class="text-red-500 font-medium" id="mensagemErro">Erro</p>
+            </div>
 
-        <div id="erro" class="hidden bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-            <p class="text-red-500 font-medium" id="mensagemErro">teste</p>
-        </div>
-
-        <div class id="resultado" class="space-y-3">
-            <div class="bg-indigo-50 rounded-lg p-4">
-                <h3 class="text-sm font-medium text-indigo-300 mb-3">Endereço:</h3>
-
-                <div class="space-y-2">
-                    <div class="flex justify-between border-b border-indigo-200 pb-2">
-                        CEP: <span id="endereço cep"></span></p>
-                        <span class="font-medium text-indigo-500 mb-3"></span>
-
-                        <div class id="resultado" class="space-y-3">
-            <div class="bg-indigo-50 rounded-lg p-4">
-                <h3 class="text-sm font-medium text-indigo-300 mb-3">Logradouro:</h3>
-
-                <div class="space-y-2">
-                    <div class="flex justify-between border-b border-indigo-200 pb-2">
-                        logradouro: <span id="endereço cep"></span></p>
-                        <span class="font-medium text-indigo-500 mb-3"></span>
+            <div id="resultado" class="hidden space-y-3">
+                <div class="bg-indigo-50 rounded-lg p-4">
+                    <h3 class="text-sm font-medium text-indigo-500 mb-3">Endereço</h3>
+                    <div class="space-y-2 text-sm text-gray-700">
+                        <div class="flex justify-between border-b border-indigo-200 pb-2">CEP: <span id="resultado-cep" class="font-medium text-indigo-600"></span></div>
+                        <div class="flex justify-between border-b border-indigo-200 pb-2">Logradouro: <span id="resultado-logradouro" class="font-medium text-indigo-600"></span></div>
+                        <div class="flex justify-between border-b border-indigo-200 pb-2">Bairro: <span id="resultado-bairro" class="font-medium text-indigo-600"></span></div>
+                        <div class="flex justify-between border-b border-indigo-200 pb-2">Localidade: <span id="resultado-localidade" class="font-medium text-indigo-600"></span></div>
+                        <div class="flex justify-between">UF: <span id="resultado-uf" class="font-medium text-indigo-600"></span></div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</body>
+
+        <script src="js/script.js"></script>
+    </body>
 </html>
-
-

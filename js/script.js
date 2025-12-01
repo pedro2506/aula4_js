@@ -1,45 +1,65 @@
 
-const InputCep = document.getElementById('cep');
-const buscarBtn = document.getElementById('buscarBtn');
-const loading = document.getElementById('loading');
-const erro = document.getElementById('erro');
-const resultado = document.getElementById('resultado');
-const mensagemErro = document.getElementById('mensagemErro');
+// Versão limpa do script: formata, valida e busca CEP usando ViaCEP
+const $ = selector => document.querySelector(selector);
+const inputCep = $('#cep');
+const buscarBtn = $('#buscarBtn');
+const loading = $('#loading');
+const erro = $('#erro');
+const resultado = $('#resultado');
+const mensagemErro = $('#mensagemErro');
 
 function formatarCep(valor) {
-    valor = valor.replace(/\D/g, '');
-    if (valor.length > 5 ){
-valor = valor.replace(/^(\d{5})(\d)/, '$1-$2');
-    }
-    return valor;
+  valor = (valor || '').replace(/\D/g, '');
+  if (valor.length > 5) valor = valor.replace(/^(\d{5})(\d)/, '$1-$2');
+  return valor;
 }
 
-InputCep.addEventListener('input', (e) => {
-    e.target.value = formatarCep(e.target.value);
+if (inputCep) inputCep.addEventListener('input', e => { e.target.value = formatarCep(e.target.value); });
 
-});
-
-
-function validarCep(cep){
-    const ceplimpo = cep.replace(/\D/g, '');
-    return ceplimpo.length === 8;
+function validarCep(cep) {
+  const ceplimpo = (cep || '').replace(/\D/g, '');
+  return ceplimpo.length === 8;
 }
 
-async function buscarCep(cep){
-    const cepLimpo = cep.replace(/\D/g, '');
-    const url = `https://viacep.com.br/ws/${cepLimpo}/json/`;
-    try{
-        const response = await fetch(url);
-        
-        if (!response.ok){
-            throw new Error('Erro na requisição');
-        }
-        const dados = await response.json();
-       if (dados.erro){
-        throw new Error('CEP nao encontrado');
-       }
+async function buscarCep(cep) {
+  const cepLimpo = (cep || '').replace(/\D/g, '');
+  if (!cepLimpo) throw new Error('CEP vazio');
+  const url = `https://viacep.com.br/ws/${cepLimpo}/json/`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Erro na requisição');
+  const data = await res.json();
+  if (data.erro) throw new Error('CEP não encontrado');
+  return data;
+}
 
-    }catch (erro) {
-        throw new Error('Erro ao buscar CEP');
+function mostrarLoading(on) { if (!loading) return; loading.classList.toggle('hidden', !on); }
+function mostrarErro(msg) { if (!erro || !mensagemErro) return; mensagemErro.textContent = msg; erro.classList.remove('hidden'); if (resultado) resultado.classList.add('hidden'); }
+function limparErro() { if (!erro || !mensagemErro) return; mensagemErro.textContent = ''; erro.classList.add('hidden'); }
+function mostrarResultado(data) {
+  if (!resultado) return;
+  $('#resultado-cep').textContent = data.cep || '';
+  $('#resultado-logradouro').textContent = data.logradouro || '';
+  $('#resultado-bairro').textContent = data.bairro || '';
+  $('#resultado-localidade').textContent = data.localidade || '';
+  $('#resultado-uf').textContent = data.uf || '';
+  resultado.classList.remove('hidden');
+}
+
+if (buscarBtn) {
+  buscarBtn.addEventListener('click', async () => {
+    const cep = inputCep ? inputCep.value.trim() : '';
+    limparErro();
+    if (!validarCep(cep)) { mostrarErro('Formato de CEP inválido. Use 12345-678 ou 12345678.'); return; }
+    mostrarLoading(true);
+    buscarBtn.disabled = true;
+    try {
+      const data = await buscarCep(cep);
+      mostrarResultado(data);
+    } catch (err) {
+      mostrarErro(err.message || 'Erro ao buscar o CEP');
+    } finally {
+      mostrarLoading(false);
+      buscarBtn.disabled = false;
     }
+  });
 }
